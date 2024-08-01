@@ -1,0 +1,144 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+ 
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+enum User_Role {
+  ADMIN
+  TEAM_MEMBER
+  CLIENT_MANAGER
+  AFFILIATE
+  CLIENT
+}
+
+model User {
+  user_id                         String          @id @default(uuid()) @unique
+
+  email                           String   @unique
+  password                        String
+  user_role                       User_Role   
+
+  last_name                       String
+  first_name                      String
+  date_of_birth                   String?
+  address                         String?
+  credit_reports                  Credit_Report[]
+  disputes                        Dispute[]
+  billings                        Billing[]
+  notifications                   Notification[]
+
+  is_approved                     Boolean?
+  is_staff                        Boolean?
+  active_status                   Boolean   @default(value: true)
+
+  created_at                      Decimal
+  updated_at                      Decimal
+}
+
+model Credit_Report {
+  credit_report_id                String          @id @default(uuid()) @unique
+
+  user                            User      @relation(fields: [user_id], references: [user_id])
+  user_id                         String
+
+  reportData                      Json
+  reportDate                      DateTime
+  derogatoryItems                 Json
+  created_at                      Decimal
+  updated_at                      Decimal
+}
+
+model Dispute {
+  dispute_id                      String          @id @default(uuid()) @unique
+
+  user                            User  @relation(fields: [user_id], references: [user_id])
+  user_id                         String
+
+  item                            String
+  reason                          String
+  status                          Dispute_Status @default(PENDING)
+  dispute_Letters                 Dispute_Letter[]
+  created_at                      Decimal
+  updated_at                      Decimal
+  }
+
+enum Dispute_Status {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model Dispute_Letter {
+  dispute_letter_id               String          @id @default(uuid()) @unique
+
+  dispute                         Dispute  @relation(fields: [dispute_id], references: [dispute_id])
+  dispute_id                      String
+  letter_content                  String
+  sent                            Boolean  @default(false)
+  sent_at                         String?
+
+  created_at                      Decimal
+  updated_at                      Decimal
+
+}
+
+model Billing {
+  billing_id                      String          @id @default(uuid()) @unique
+
+  user                            User   @relation(fields: [user_id], references: [user_id])
+  user_id                         String
+
+  amount                          Float
+  billing_status                  Billing_Status @default(PENDING)
+  invoiceDate                     DateTime
+  dueDate                         DateTime
+  paidAt                          DateTime?
+
+  created_at                      Decimal
+  updated_at                      Decimal
+
+}
+
+enum Billing_Status {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+model Education_Resource {
+  education_resource_id           String          @id @default(uuid())
+
+  title                           String
+  content                         String
+  category                        Education_Category
+
+  created_at                      Decimal
+  updated_at                      Decimal
+
+}
+
+enum Education_Category {
+  CREDIT_SCORES
+  CREDIT_REPORTS
+  CREDIT_MANAGEMENT
+}
+
+model Notification {
+  notification_id                 String          @id @default(uuid()) @unique
+
+  user                            User   @relation(fields: [user_id], references: [user_id])
+  user_id                         String
+  message                         String
+  seen                            Boolean   @default(false)
+
+  created_at                      Decimal
+  updated_at                      Decimal
+
+}
