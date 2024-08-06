@@ -50,7 +50,7 @@ app.use(not_found);
 
 
 const start = async () => {
-    const PORT = port || 6000;
+    const PORT = port || 4500;
     try {
         server.listen(PORT, () => console.log(`Credit Resolution App server started and running on port ${PORT}`.cyan.bold));
     } catch (err) {

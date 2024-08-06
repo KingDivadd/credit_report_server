@@ -862,7 +862,7 @@ export const otp_messanger = (user:any, otp: string) => {
             .container {
                 display: inline-block;
                 text-align: left;
-                margin: 3px auto;
+                margin: 20px auto;
                 padding: 20px;
                 border: 1px solid #ddd;
                 border-radius: 8px;
@@ -881,12 +881,6 @@ export const otp_messanger = (user:any, otp: string) => {
             a {
                 color: #0066cc;
                 text-decoration: none;
-            }
-            ul {
-                padding-left: 20px;
-            }
-            li {
-                margin-bottom: 10px;
             }
         </style>
     </head>

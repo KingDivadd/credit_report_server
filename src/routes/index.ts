@@ -1,6 +1,6 @@
 import express from 'express'
 import { generate_otp_validation, login_validation, admin_signup_validation, user_signup_validation, verify_otp_validation, reset_password_validation, edit_staff_role_validation } from '../validations'
-import { admin_signup, approve_staff_account, delete_staff_account, edit_staff_role, generate_user_otp, reset_password, user_login, user_signup } from '../controllers/authentication'
+import { admin_signup, all_users, approve_staff_account, delete_staff_account, edit_staff_role, generate_user_otp, reset_password, user_login, user_signup } from '../controllers/authentication'
 import { email_exist, verify_auth_id, verify_user_otp } from '../helpers/auth_helper'
 
 
@@ -23,6 +23,8 @@ router.route('/generate-otp').post(generate_otp_validation, generate_user_otp )
 router.route('/verify-otp').post(verify_otp_validation, verify_user_otp )
 
 router.route('/reset-password').patch(reset_password_validation, reset_password )
+
+router.route('/all-users/:page_number').get(verify_auth_id, all_users)
 
 
 export default router

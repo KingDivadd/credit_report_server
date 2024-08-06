@@ -296,3 +296,35 @@ export const update_user_active_status = async(req: CustomRequest, res: Response
         return res.status(500).json({err: 'Error occured while update active user status ', error:err})
     }
 }
+
+export const all_users = async(req: CustomRequest, res: Response)=>{
+    try {
+        
+        const user_id = req.account_holder.user.user_id
+
+        const {page_number} = req.params
+
+        const [number_of_users, users] = await Promise.all([
+            prisma.user.count({ where: {user_id: {not: user_id}}}),
+
+            prisma.user.findMany({
+                where: {user_id: {not: user_id}},
+
+                skip: (Math.abs(Number(page_number)) - 1) * 15,
+
+                take: 15,
+
+                orderBy: { created_at: 'desc' }
+                
+            })
+        ])
+
+        const number_of_pages = (number_of_users <= 15) ? 1 : Math.ceil(number_of_users/15)
+
+        return res.status(200).json({ message:'All Users', data: {total_number_of_users: number_of_users, total_number_of_pages: number_of_pages, users} })
+
+    } catch (err:any) {
+        console.log('Error occured while fetching all users ', err);
+        return res.status(500).json({err: 'Error occured while fetching all users', error: err})
+    }
+}
