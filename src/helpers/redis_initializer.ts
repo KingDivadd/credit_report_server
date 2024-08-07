@@ -5,38 +5,70 @@ if (!redis_url) {
     throw new Error('REDIS URL not found');
 }
 
-const redis_client = createClient({
+let redis_client = createClient({
     url: String(redis_url),
     socket: {
-        connectTimeout: 15000,
         reconnectStrategy: (retries) => {
-        if (retries > 10) {
-            console.log('Too many retries, giving up');
-            return new Error('Retry limit reached');
+            console.log('Reconnecting to Redis...'.cyan.bold);
+            return Math.min(retries * 100, 3000); // Exponential backoff
+        },
+    },
+});
+
+function setupClientListeners(client:any ) {
+    client.on('connect', () => {
+        console.log('Redis client connected'.cyan.bold);
+    });
+
+    client.on('end', () => {
+        console.log('Redis client disconnected'.yellow.bold);
+    });
+
+    client.on('error', (err:any) => {
+        console.log('Redis Client Error'.red.bold, err);
+        if (err.code === 'ECONNRESET' || err.code === 'NR_CLOSED' || err.message.includes('Socket closed unexpectedly')) {
+            recreateRedisClient(); // Recreate the client on specific errors
         }
-        return Math.min(retries * 100, 3000); 
+    });
+}
+
+async function recreateRedisClient() {
+    try {
+        if (redis_client.isOpen) {
+            console.log('closing existing connection')
+            await redis_client.quit(); // Close the existing connection if open
         }
+    } catch (err) {
+        console.log('Error quitting Redis client', err);
     }
-});
 
-redis_client.on('error', (err) => {
-    console.log('Redis Client Error'.red.bold, err);
-});
+    redis_client = createClient({
+        url: String(redis_url),
+        socket: {
+            reconnectStrategy: (retries) => {
+                console.log('Reconnecting to Redis...'.cyan.bold);
+                return Math.min(retries * 100, 3000); // Exponential backoff
+            },
+        },
+    });
 
-redis_client.on('connect', () => {
-    console.log('Redis client connected'.yellow.bold);
-});
+    setupClientListeners(redis_client);
 
-redis_client.on('reconnecting', (retries) => {
-    console.log(`Reconnecting...`.yellow.bold);
-});
+    try {
+        await redis_client.connect();
+    } catch (err) {
+        console.error('Could not establish a connection with Redis', err);
+        setTimeout(recreateRedisClient, 3000); // Retry after delay if connection fails
+    }
+}
 
-redis_client.on('end', () => {
-    console.log('Redis client disconnected');
-});
+setupClientListeners(redis_client);
 
-redis_client.connect().catch((err) => {
-    console.error('Could not establish a connection with Redis'.red.bold, err);
-});
+try {
+    redis_client.connect();
+} catch (err) {
+    console.log('Error occurred', err);
+    recreateRedisClient();
+}
 
 export default redis_client;

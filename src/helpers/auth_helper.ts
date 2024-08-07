@@ -27,7 +27,14 @@ export const email_exist = async(req: Request, res: Response, next: NextFunction
 
 export const verify_user_otp = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const {email,otp} = req.body
-    try {
+    
+    try 
+    {
+        if (!redis_client.isOpen) {
+            console.log('Redis client not connected, attempting to reconnect...');
+            await redis_client.connect();
+        }
+
         const value: any = await (await redis_client).get(`${email}`)
         if (!value){
             return res.status(401).json({err: "Session has expired, kindly login again to continue..."})
@@ -59,6 +66,11 @@ export const verify_auth_id = async (req: CustomRequest, res: Response, next: Ne
         if (!auth_id) {
             return res.status(401).json({ err: 'x-id-key is missing' })
         }   
+
+        if (!redis_client.isOpen) {
+            console.log('Redis client not connected, attempting to reconnect...');
+            await redis_client.connect();
+        }
 
         const value = await (await redis_client).get(`${auth_id}`)
 
