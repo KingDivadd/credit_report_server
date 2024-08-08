@@ -39,7 +39,7 @@ export const create_client = async(req: CustomRequest, res: Response, next: Next
         req.body.password = await bcrypt.hash(password, salt_round);
         req.body.created_at = converted_datetime()
         req.body.updated_at = converted_datetime()
-
+        req.body.user_role = 'CLIENT'
         req.body.is_approved = true
         req.body.is_staff = false
         
