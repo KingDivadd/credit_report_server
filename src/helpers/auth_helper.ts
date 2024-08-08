@@ -30,9 +30,9 @@ export const verify_user_otp = async (req: CustomRequest, res: Response, next: N
     
     try 
     {
-        if (!redis_client.isOpen) {
+        if (!(await redis_client).isOpen) {
             console.log('Redis client not connected, attempting to reconnect...');
-            await redis_client.connect();
+            await (await redis_client).connect();
         }
 
         const value: any = await (await redis_client).get(`${email}`)
@@ -67,9 +67,9 @@ export const verify_auth_id = async (req: CustomRequest, res: Response, next: Ne
             return res.status(401).json({ err: 'x-id-key is missing' })
         }   
 
-        if (!redis_client.isOpen) {
+        if (!(await redis_client).isOpen) {
             console.log('Redis client not connected, attempting to reconnect...');
-            await redis_client.connect();
+            await (await redis_client).connect();
         }
 
         const value = await (await redis_client).get(`${auth_id}`)
