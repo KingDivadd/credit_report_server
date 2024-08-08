@@ -32,6 +32,36 @@ export const admin_signup = async(req: Request, res: Response, next: NextFunctio
     }
 }
 
+export const create_client = async(req: CustomRequest, res: Response, next: NextFunction)=>{
+    const {last_name, first_name, password, email} = req.body
+
+    try {
+        req.body.password = await bcrypt.hash(password, salt_round);
+        req.body.created_at = converted_datetime()
+        req.body.updated_at = converted_datetime()
+
+        req.body.is_approved = true
+        req.body.is_staff = false
+        
+        const [user_signup, admins] = await Promise.all([
+            prisma.user.create({ data: req.body  }),
+            prisma.user.findMany({ where: {user_role: 'ADMIN', user_id: {not: req.account_holder.user.user_id }} })
+        ]) 
+
+        welcome_mail_messanger(user_signup)
+
+        admins.forEach((data, ind)=>{
+            notify_admin_of_new_staff(user_signup, data.email )
+        })
+
+        return res.status(201).json({msg: 'User created successfully.', user: user_signup})
+        
+    } catch (err:any) {
+        console.log('Error during user signup ',err)
+        return res.status(500).json({err: 'Error during user signup ', error: err})
+    }
+}
+
 export const user_signup = async(req: Request, res: Response, next: NextFunction)=>{
     const {last_name, first_name, password, email, user_role} = req.body
 

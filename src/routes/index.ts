@@ -1,6 +1,6 @@
 import express from 'express'
 import { generate_otp_validation, login_validation, admin_signup_validation, user_signup_validation, verify_otp_validation, reset_password_validation, edit_staff_role_validation } from '../validations'
-import { admin_signup, all_users, approve_staff_account, delete_staff_account, edit_staff_role, generate_user_otp, reset_password, user_login, user_signup } from '../controllers/authentication'
+import { admin_signup, all_users, approve_staff_account, create_client, delete_staff_account, edit_staff_role, generate_user_otp, reset_password, user_login, user_signup } from '../controllers/authentication'
 import { email_exist, verify_auth_id, verify_user_otp } from '../helpers/auth_helper'
 
 
@@ -9,6 +9,8 @@ const router = express.Router()
 router.route('/admin-signup').post(admin_signup_validation,  email_exist,  admin_signup)
 
 router.route('/user-signup').post(user_signup_validation,  email_exist, user_signup)
+
+router.route('/create-client').post(verify_auth_id, email_exist, create_client )
 
 router.route('/user-login').post(login_validation, user_login )
 

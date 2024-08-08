@@ -49,6 +49,29 @@ export const user_signup_validation = async (req: Request, res: Response, next: 
     }
 }
 
+export const create_client_validation = async (req: Request, res: Response, next: NextFunction)=>{
+    try {
+        const schema = Joi.object({
+            last_name: Joi.string().trim().required(),
+            first_name: Joi.string().trim().required(),
+            email: Joi.string().trim().email().required(),
+            password: Joi.string().trim().required()
+        })
+
+        const { error: validation_error } = schema.validate(req.body)
+
+        if (validation_error) {
+            const error_message = validation_error.message.replace(/"/g, '');
+            return res.status(400).json({ err: error_message });
+        }
+        return next()
+    } catch (err:any) {
+        console.log('Error occured in create client validation function ',err)
+        return res.status(422).json({err: 'Error occured in create client validation funtion ', error: err})
+        
+    }
+}
+
 export const login_validation = async (req: Request, res: Response, next: NextFunction)=>{
     try {
         const schema = Joi.object({

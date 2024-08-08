@@ -98,7 +98,5 @@ export const verify_auth_id = async (req: CustomRequest, res: Response, next: Ne
 
         }
         console.error('Error in verify auth id function : ', err)
-
-        throw new Error(err);
     }
 }
