@@ -58,7 +58,7 @@ export const create_client = async(req: CustomRequest, res: Response, next: Next
         
     } catch (err:any) {
         console.log('Error during user signup ',err)
-        return res.status(500).json({err: 'Error during user signup ', error: err})
+        return res.status(500).json({err: 'Error during user signup. ', error: err})
     }
 }
 
