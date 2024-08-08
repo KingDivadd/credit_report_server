@@ -5,7 +5,7 @@ import converted_datetime from '../helpers/date_time_elements'
 import { mobile_redis_auth_store, redis_auth_store, redis_otp_store, redis_value_update } from '../helpers/redis_funtions'
 import {generate_otp, generate_referral_code} from '../helpers/generated_entities'
 import { CustomRequest } from '../helpers/interface'
-import { admin_welcome_mail_messenger, notify_admin_of_new_staff, otp_messanger, staff_account_approval_mail, staff_account_deletion_mail, staff_role_change_mail, staff_welcome_mail_messenger, user_account_suspension_mail, user_account_unsuspension_mail, welcome_mail_messanger } from '../helpers/emails'
+import { account_activation_mail, account_deactivation_mail, admin_welcome_mail_messenger, notify_admin_of_new_staff, otp_messanger, staff_account_approval_mail, staff_account_deletion_mail, staff_role_change_mail, staff_welcome_mail_messenger, user_account_suspension_mail, user_account_unsuspension_mail, welcome_mail_messanger } from '../helpers/emails'
 const bcrypt = require('bcrypt')
 
 export const admin_signup = async(req: Request, res: Response, next: NextFunction)=>{
@@ -173,7 +173,73 @@ export const approve_staff_account = async(req: CustomRequest, res: Response, ne
     }
 }
 
-export const delete_staff_account = async(req: CustomRequest, res: Response, next: NextFunction)=>{
+export const de_activate_account = async(req: CustomRequest, res: Response, next: NextFunction)=>{
+    try {
+        
+        const user_role = req.account_holder.user.user_role
+
+        if (user_role != 'ADMIN'){
+            return res.status(401).json({err: 'Not authorized to perform selected operation.'})
+        }
+
+        const {user_id}  = req.params
+
+        console.log(user_id);
+
+        const user = await prisma.user.findUnique({ where: {user_id} })       
+        
+        if (!user){return res.status(404).json({err: 'Incorrect user id passed'})}
+
+        if (user?.user_role == 'ADMIN'){
+            return res.status(401).json({err: "Not Authorized to deactivate an admin's account"})
+        }
+
+        const deactivated_user = await prisma.user.update({ where: {user_id}, data: {
+            active_status: false,
+            updated_at: converted_datetime()
+        } })
+
+        account_deactivation_mail(deactivated_user)
+
+        return res.status(200).json({msg: 'User account has been Deactivated.'})
+
+    } catch (err:any) {
+        console.log('Error occured while approving staff account ', err);
+        return res.status(500).json({err: 'Error occured while approving staff account ', error: err})
+    }
+}
+
+export const activate_account = async(req: CustomRequest, res: Response, next: NextFunction)=>{
+    try {
+        
+        const user_role = req.account_holder.user.user_role
+
+        if (user_role != 'ADMIN'){
+            return res.status(401).json({err: 'Not authorized to perform selected operation.'})
+        }
+
+        const {user_id}  = req.params
+
+        const user = await prisma.user.findUnique({ where: {user_id} })        
+
+        if (!user){return res.status(404).json({err: 'Incorrect user id passed'})}
+
+        const activated_user = await prisma.user.update({ where: {user_id}, data: {
+            active_status: true,
+            updated_at: converted_datetime()
+        } })
+
+        account_activation_mail(activated_user)
+
+        return res.status(200).json({msg: 'User account has been Activated.'})
+
+    } catch (err:any) {
+        console.log('Error occured while approving staff account ', err);
+        return res.status(500).json({err: 'Error occured while approving staff account ', error: err})
+    }
+}
+
+export const delete_user_account = async(req: CustomRequest, res: Response, next: NextFunction)=>{
     try {
         const user_role = req.account_holder.user.user_role
 
@@ -183,21 +249,21 @@ export const delete_staff_account = async(req: CustomRequest, res: Response, nex
 
         const {user_id}  = req.params
 
-        const staff = await prisma.user.findUnique({ where: {user_id} })        
+        const user = await prisma.user.findUnique({ where: {user_id} })        
 
-        if (!staff){
-            return res.status(404).json({err: 'Staff to be deleted not found or already deleted'})
+        if (!user){
+            return res.status(404).json({err: 'User to be deleted not found '})
         }
 
-        const delete_staff = await prisma.user.delete({ where: {user_id} })
+        const delete_user = await prisma.user.delete({ where: {user_id} })
 
-        staff_account_deletion_mail(delete_staff)
+        staff_account_deletion_mail(delete_user)
 
-        return res.status(200).json({msg: 'Staff account deleted successfuly'})
+        return res.status(200).json({msg: 'User account deleted successfuly'})
 
     } catch (err:any) {
-        console.log('Error occured while deleting staff account ', err);
-        return res.status(500).json({err: 'Error occured while deleting staff account', error:err})
+        console.log('Error occured while deleting user account ', err);
+        return res.status(500).json({err: 'Error occured while deleting user account', error:err})
     }
 }
 

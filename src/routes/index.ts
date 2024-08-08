@@ -1,6 +1,6 @@
 import express from 'express'
 import { generate_otp_validation, login_validation, admin_signup_validation, user_signup_validation, verify_otp_validation, reset_password_validation, edit_staff_role_validation } from '../validations'
-import { admin_signup, all_users, approve_staff_account, create_client, delete_staff_account, edit_staff_role, generate_user_otp, reset_password, user_login, user_signup } from '../controllers/authentication'
+import { activate_account, admin_signup, all_users, approve_staff_account, create_client, de_activate_account, delete_user_account, edit_staff_role, generate_user_otp, reset_password, user_login, user_signup } from '../controllers/authentication'
 import { email_exist, verify_auth_id, verify_user_otp } from '../helpers/auth_helper'
 
 
@@ -18,7 +18,11 @@ router.route('/change-staff-role/:user_id').patch(verify_auth_id, edit_staff_rol
 
 router.route('/approve-staff-account/:user_id').patch(verify_auth_id, approve_staff_account )
 
-router.route('/delete-staff-account/:user_id').delete(verify_auth_id, delete_staff_account )
+router.route('/de-activate-user-account/:user_id').patch(verify_auth_id, de_activate_account )
+
+router.route('/activate-user-account/:user_id').patch(verify_auth_id, activate_account )
+
+router.route('/delete-user-account/:user_id').delete(verify_auth_id, delete_user_account )
 
 router.route('/generate-otp').post(generate_otp_validation, generate_user_otp )
 

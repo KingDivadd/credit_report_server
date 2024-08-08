@@ -920,3 +920,176 @@ export const otp_messanger = (user:any, otp: string) => {
     });
 
 }
+
+export const account_deactivation_mail = (user:any) => {
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: email_username,
+            pass: email_passowrd
+        }
+    });
+
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Account Deactivated - Credit Mend</title>
+            <style>
+                body {
+                    text-align: center;
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    display: inline-block;
+                    text-align: left;
+                    margin: 20px auto;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    max-width: 600px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                h1 {
+                    color: #333;
+                    text-align: center;
+                    margin: 0 0 20px 0;
+                }
+                p {
+                    color: #555;
+                    line-height: 1.6;
+                }
+                a {
+                    color: #0066cc;
+                    text-decoration: none;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Account Deactivated, ${user.first_name}</h1>
+                <p>We regret to inform you that your account on Credit Mend has been deactivated. This means you no longer have access to the platform and its services.</p>
+                
+                <p>If you believe this was done in error or have any questions, please reach out to our support team at <a href="mailto:support@creditmend.com">support@creditmend.com</a>.</p>
+                
+                <p>We're here to assist you with any concerns you may have.</p>
+                <p>The Credit Mend Team</p>
+            </div>
+        </body>
+        </html>
+    `;
+
+    const mailOptions = {
+        from: {
+            name: "Credit Mend",
+            address: 'support@creditmend.com'
+        },
+        to: user.email,
+        subject: "Credit Mend: Account Deactivated",
+        html: htmlContent,
+        text: 'Account Deactivated'
+    };
+
+    transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log(`Deactivation email sent to ${user.email}`.cyan.bold);
+        }
+    });
+
+}
+
+export const account_activation_mail = (user:any) => {
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: email_username,
+            pass: email_passowrd
+        }
+    });
+
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Account Activated - Credit Mend</title>
+            <style>
+                body {
+                    text-align: center;
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    display: inline-block;
+                    text-align: left;
+                    margin: 20px auto;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    max-width: 600px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                h1 {
+                    color: #333;
+                    text-align: center;
+                    margin: 0 0 20px 0;
+                }
+                p {
+                    color: #555;
+                    line-height: 1.6;
+                }
+                a {
+                    color: #0066cc;
+                    text-decoration: none;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Account Activated, ${user.first_name}!</h1>
+                <p>We're pleased to inform you that your account on Credit Mend has been activated. You now have full access to the platform and its features.</p>
+                
+                <p>Here are some steps to get started:</p>
+                <ul>
+                    <li>Log in to your account using your credentials.</li>
+                    <li>Explore the dashboard and utilize the tools and resources available to you.</li>
+                    <li>If you need assistance, visit our <a href="#">Help Center</a> or contact our support team.</li>
+                </ul>
+                
+                <p>We're excited to have you on board and look forward to helping you achieve your credit goals.</p>
+                <p>The Credit Mend Team</p>
+            </div>
+        </body>
+        </html>
+    `;
+
+    const mailOptions = {
+        from: {
+            name: "Credit Mend",
+            address: 'support@creditmend.com'
+        },
+        to: user.email,
+        subject: "Credit Mend: Account Activated",
+        html: htmlContent,
+        text: 'Account Activated'
+    };
+
+    transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log(`Activation email sent to ${user.email}`.cyan.bold);
+        }
+    });
+
+}
