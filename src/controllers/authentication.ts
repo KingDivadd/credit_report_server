@@ -125,8 +125,11 @@ export const user_login = async(req: Request, res: Response, next: NextFunction)
         }
 
         const x_id_key = await redis_auth_store(user, 60 * 60 * 23)
+
+        if (x_id_key){
+            res.setHeader('x-id-key', x_id_key)
+        }
         
-        res.setHeader('x-id-key', x_id_key)
 
         
         return res.status(200).json({ msg: "Login successful", user_data: user })
@@ -339,8 +342,12 @@ export const reset_password = async(req: CustomRequest, res: Response, next: Nex
         })
 
         const x_id_key = await redis_auth_store(user_signup, 60 * 60 * 23)
+
+        if (x_id_key) {
+            
+            res.setHeader('x-id-key', x_id_key)
+        }
         
-        res.setHeader('x-id-key', x_id_key)
 
         return res.status(200).json({msg: 'Password update successful'})
         
@@ -422,5 +429,20 @@ export const all_users = async(req: CustomRequest, res: Response)=>{
     } catch (err:any) {
         console.log('Error occured while fetching all users ', err);
         return res.status(500).json({err: 'Error occured while fetching all users', error: err})
+    }
+}
+
+export const all_staff = async(req: Request, res: Response)=>{
+    try {
+        
+        const staff = await prisma.user.findMany({
+            where: {user_role: {not: 'CLIENT'}}
+        })
+
+        return res.status(200).json({msg: 'All staffs ', staffs: staff})
+        
+    } catch (err:any) {
+        console.log('Error occured while fetching all staffs');
+        return res.status(500).json({err: 'Error occured while fetching all staffs ', error: err})
     }
 }

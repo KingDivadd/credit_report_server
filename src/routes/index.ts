@@ -1,8 +1,11 @@
 import express from 'express'
-import { generate_otp_validation, login_validation, admin_signup_validation, user_signup_validation, verify_otp_validation, reset_password_validation, edit_staff_role_validation } from '../validations'
-import { activate_account, admin_signup, all_users, approve_staff_account, create_client, de_activate_account, delete_user_account, edit_staff_role, generate_user_otp, reset_password, user_login, user_signup } from '../controllers/authentication'
+
+import { generate_otp_validation, login_validation, admin_signup_validation, user_signup_validation, verify_otp_validation, reset_password_validation, edit_staff_role_validation, create_lead_validation } from '../validations'
+
+import { activate_account, admin_signup, all_staff, all_users, approve_staff_account, create_client, de_activate_account, delete_user_account, edit_staff_role, generate_user_otp, reset_password, user_login, user_signup } from '../controllers/authentication'
 import { email_exist, verify_auth_id, verify_user_otp } from '../helpers/auth_helper'
 
+import { all_leads, create_lead } from '../controllers/leads'
 
 const router = express.Router()
 
@@ -32,5 +35,12 @@ router.route('/reset-password').patch(reset_password_validation, reset_password 
 
 router.route('/all-users/:page_number').get(verify_auth_id, all_users)
 
+router.route('/all-staff').get(verify_auth_id, all_staff)
+
+// Leads
+
+router.route('/all-leads/:page_number').get(verify_auth_id, all_leads)
+
+router.route('/create-lead').post(verify_auth_id, create_lead_validation, create_lead)
 
 export default router

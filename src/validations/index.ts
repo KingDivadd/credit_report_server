@@ -174,3 +174,27 @@ export const reset_password_validation = async (req: Request, res: Response, nex
         
     }
 }
+
+export const create_lead_validation = async (req: Request, res: Response, next: NextFunction)=>{
+    try {
+        const schema = Joi.object({
+            name: Joi.string().trim().required(),
+            company_name: Joi.string().trim().allow('').optional(),
+            phone_number: Joi.string().trim().allow('').optional(),
+            email: Joi.string().trim().email().required(),
+            assigned_to: Joi.string().trim().required()
+        })
+
+        const { error: validation_error } = schema.validate(req.body)
+
+        if (validation_error) {
+            const error_message = validation_error.message.replace(/"/g, '');
+            return res.status(400).json({ err: error_message });
+        }
+        return next()
+    } catch (err:any) {
+        console.log('Error occured in create lead validation function ',err)
+        return res.status(422).json({err: 'Error occured in create lead validation funtion ', error: err})
+        
+    }
+}

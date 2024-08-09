@@ -10,7 +10,7 @@ export const redis_call_store = async (user_id: string, availability: any, usefu
         return user_id;
     } catch (err) {
         console.error('Error in redis call store:', err);
-        throw err;
+        
     }
 }
 
@@ -23,7 +23,7 @@ export const redis_auth_store = async (user: any, useful_time: number) => {
 
     } catch (err) {
         console.error('Error in redis auth store function:', err);
-        throw err;
+        
     }
 }
 
@@ -36,7 +36,7 @@ export const mobile_redis_auth_store = async (user: any) => {
 
     } catch (err) {
         console.error('Error in redis auth store function:', err);
-        throw err;
+        
     }
 }
 
@@ -47,7 +47,7 @@ export const redis_otp_store = async (email: string, sent_otp: string, status: s
 
     } catch (err) {
         console.error('Error in redis otp store func:', err);
-        throw err;
+        
     }
 }
 
@@ -65,6 +65,6 @@ export const redis_value_update = async (uuid: string, user: any, useful_time: n
         }
     } catch (err) {
         console.error('Error in redis data update : ', err);
-        throw err;
+        
     }
 }
