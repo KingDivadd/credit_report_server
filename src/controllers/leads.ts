@@ -112,3 +112,30 @@ export const update_lead = async(req: CustomRequest, res: Response, )=>{
         return res.status(500).json({err: 'Error occured while updating lead ', error: err})
     }
 }
+
+export const delete_lead = async(req: CustomRequest, res: Response, )=>{
+    try {
+
+        const {lead_id} = req.params
+
+        const user_role = req.account_holder.user.user_role
+
+        if (user_role !== 'ADMIN'){
+            return res.status(401).json({err: 'Not authorized to create lead.'})
+        }
+
+        const lead = await prisma.lead.findUnique({where: {lead_id}})
+
+        if (!lead){
+            return res.status(404).json({err: 'Lead not found. '})
+        }
+
+        const del_lead = await prisma.lead.delete({where: {lead_id}})
+
+        return res.status(200).json({msg: 'Lead deleted successfully', })
+        
+    } catch (err:any) {
+        console.log('Error occured while deleting lead ', err);
+        return res.status(500).json({err: 'Error occured while deleting lead ', error: err})
+    }
+}
