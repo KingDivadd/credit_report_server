@@ -82,3 +82,33 @@ export const create_lead = async(req: CustomRequest, res: Response, )=>{
         return res.status(500).json({err: 'Error occured while creating lead ', error: err})
     }
 }
+
+export const update_lead = async(req: CustomRequest, res: Response, )=>{
+    const {name, email, phone_number, company_name, assigned_to} = req.body
+    try {
+
+        const {lead_id} = req.params
+
+        const user_role = req.account_holder.user.user_role
+
+        if (user_role !== 'ADMIN'){
+            return res.status(401).json({err: 'Not authorized to create lead.'})
+        }
+
+        const update_lead = await prisma.lead.update({
+            where: {lead_id},
+            data: { name, email, phone_number, company_name, assigned_to_id: assigned_to, updated_at: converted_datetime() }
+        })
+
+
+        if (!update_lead){
+            return res.status(500).json({err: 'Error occured while updating lead '})
+        }
+
+        return res.status(200).json({msg: 'Lead updated successfully', lead: update_lead})
+        
+    } catch (err:any) {
+        console.log('Error occured while updating lead ', err);
+        return res.status(500).json({err: 'Error occured while updating lead ', error: err})
+    }
+}

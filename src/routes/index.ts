@@ -43,4 +43,8 @@ router.route('/all-leads/:page_number').get(verify_auth_id, all_leads)
 
 router.route('/create-lead').post(verify_auth_id, create_lead_validation, create_lead)
 
+router.route('/edit-lead/:lead_id').post(verify_auth_id, create_lead_validation, create_lead)
+
+
+
 export default router
