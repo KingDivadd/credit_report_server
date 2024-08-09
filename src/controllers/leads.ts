@@ -136,6 +136,6 @@ export const delete_lead = async(req: CustomRequest, res: Response, )=>{
         
     } catch (err:any) {
         console.log('Error occured while deleting lead ', err);
-        return res.status(500).json({err: 'Error occured while deleting lead ', error: err})
+        return res.status(500).json({err: 'Error occured while deleting lead. ', error: err})
     }
 }
