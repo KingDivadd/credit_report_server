@@ -5,7 +5,7 @@ import { generate_otp_validation, login_validation, admin_signup_validation, use
 import { activate_account, admin_signup, all_staff, all_users, approve_staff_account, create_client, de_activate_account, delete_user_account, edit_staff_role, generate_user_otp, reset_password, user_login, user_signup } from '../controllers/authentication'
 import { email_exist, verify_auth_id, verify_user_otp } from '../helpers/auth_helper'
 
-import { all_leads, create_lead } from '../controllers/leads'
+import { all_leads, create_lead, update_lead } from '../controllers/leads'
 
 const router = express.Router()
 
@@ -43,7 +43,7 @@ router.route('/all-leads/:page_number').get(verify_auth_id, all_leads)
 
 router.route('/create-lead').post(verify_auth_id, create_lead_validation, create_lead)
 
-router.route('/edit-lead/:lead_id').post(verify_auth_id, create_lead_validation, create_lead)
+router.route('/edit-lead/:lead_id').patch(verify_auth_id, create_lead_validation, update_lead)
 
 
 
