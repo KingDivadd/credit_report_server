@@ -25,37 +25,23 @@ export const email_exist = async(req: Request, res: Response, next: NextFunction
     }
 }
 
-export const verify_user_otp = async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const {email,otp} = req.body
-    
-    try 
-    {
-        if (!(await redis_client).isOpen) {
-            console.log('Redis client not connected, attempting to reconnect...');
-            await (await redis_client).connect();
-        }
+export const verify_otp = async(req: CustomRequest, res: Response, next: NextFunction)=> {
+    const {email, otp} = req.body
+    try {
 
         const value: any = await (await redis_client).get(`${email}`)
-        if (!value){
-            return res.status(401).json({err: "Session has expired, kindly login again to continue..."})
-        }
+
+        if (!value){ return res.status(401).json({err: "session id has expired, generate a new OTP."}) }
+
         const otp_data = await jwt.verify(value, jwt_secret)
 
-        const stored_otp = otp_data.sent_otp
-
-        if (stored_otp != otp){
-            return res.status(401).json({err: 'Incorrect otp provided.'})
-        }
-
-        return res.status(200).json({msg: 'Verification successful'})
-
-    } catch (err: any) {
-        if (err.name === 'TokenExpiredError') {
-            return res.status(410).json({ err: `jwt token expired, generate and verify OTP`, error:err })
-        }
-
-        console.log('Error in verify otp status funciton', err)
-        return res.status(500).json({ err: 'Error in verify otp status function ', error:err })
+        if (otp_data.sent_otp !== otp ) {  return res.status(401).json({err: 'Incorrect OTP entered '})  }
+        
+        return next()
+        
+    } catch (err:any) {
+        console.log('Error while verifying otp')
+        return res.status(500).json({err: `Error occured while verifying admin otp`})
     }
 }
 

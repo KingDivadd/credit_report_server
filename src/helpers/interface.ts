@@ -11,17 +11,6 @@ export interface CustomRequest {
     phone_number?: string;
     account_holder?: any;
     otp_data?: any;
-    path?: any;
-    verifiedPatient?:any;
-    verifiedPhysician?:any;
-    user_1?:any;
-    chat_users?:any;
-    chat_user?:any;
-    user_email?:string;
-    updated_user?:any;
-    patientModel?:any;
-    physicianModel?:any;
-    pushNotificationData?:any;
 }
 
 
