@@ -4,8 +4,7 @@ import { signup_validation, business_validation, login_validation, reset_passwor
 
 import { email_exist, verify_auth_id, verify_otp,  } from '../helpers/auth_helper'
 
-import { add_new_business, user_login, generate_verification_otp, verify_email_otp, reset_password, change_profile_active_status, create_profile, signup } from '../controllers/authentication'
-
+import { add_new_business, generate_verification_otp, reset_password, signup, user_login, verify_email_otp } from '../controllers/authentication'
 
 const router = express.Router()
 
