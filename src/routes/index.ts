@@ -1,10 +1,12 @@
 import express from 'express'
 
+import {navigation_content} from "../controllers/general"
+
 import { signup_validation, business_validation, login_validation, reset_password_validation, profile_validation } from '../validations'
 
 import { email_exist, verify_auth_id, verify_otp,  } from '../helpers/auth_helper'
 
-import { add_new_business, generate_verification_otp, reset_password, signup, user_login, verify_email_otp } from '../controllers/authentication'
+import { add_new_business, change_profile_active_status, create_profile, edit_profile, generate_verification_otp, reset_password, signup, user_login, verify_email_otp } from '../controllers/authentication'
 
 const router = express.Router()
 
@@ -27,6 +29,13 @@ router.route('/change-profile-status/:status/:profile_id').patch(verify_auth_id,
 
 router.route('/create-profile').post(verify_auth_id, profile_validation, create_profile)
 
-router.route('/edit-profile/:profile_id').patch(verify_auth_id, profile_validation,  )
+router.route('/edit-profile/:profile_id').patch(verify_auth_id, profile_validation, edit_profile  )
+
+// General 
+
+router.route('/navigation').get(verify_auth_id, navigation_content )
+
+
+
 
 export default router
