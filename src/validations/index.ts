@@ -107,7 +107,10 @@ export const profile_validation = async (req: Request, res: Response, next: Next
 
             first_name: Joi.string().trim().required(),
             last_name: Joi.string().trim().required(),
-            email: Joi.string().email().required()
+            phone_number: Joi.string().trim().required(),
+            email: Joi.string().email().required(),
+            credit_score: Joi.number().optional(),
+            report_data: Joi.string().trim().required(),
 
         })
 

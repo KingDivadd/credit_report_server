@@ -9,11 +9,13 @@ export const email_exist = async(req: Request, res: Response, next: NextFunction
     const {email} = req.body
     try {
         
-        const user = await prisma.user.findFirst({
-            where: {email}
-        })
+        const [user, profile] = await Promise.all([
+            prisma.user.findFirst({ where: {email} }),
+            prisma.profile.findFirst({ where: {email} }),
+        ]) 
+        
 
-        if (user){
+        if (user || profile){
             return res.status(409).json({ err: 'Email already taken' })
         }
 

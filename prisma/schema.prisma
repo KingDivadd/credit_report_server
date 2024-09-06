@@ -49,6 +49,8 @@ model Profile {
   first_name                      String?
   last_name                       String?
   email                           String?
+  phone_number                    String?
+  credit_score                    Float?
 
   credit_reports                  CreditReport[]
   dispute_letter                  DisputeLetter[]
@@ -88,7 +90,8 @@ model CreditReport {
   profile                         Profile         @relation(fields: [profile_id], references: [profile_id])
   profile_id                      String
 
-  report_date                     String
+  report_data                     String
+  
 
   created_at                      Decimal
   updated_at                      Decimal
