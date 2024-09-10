@@ -99,8 +99,7 @@ export const admin_welcome_mail_messenger = (admin:any) => {
 
 }
 
-export const staff_welcome_mail_messenger = (staff:any) => {
-
+export const single_user_welcome_mail_messenger = (user: any) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -115,7 +114,96 @@ export const staff_welcome_mail_messenger = (staff:any) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Welcome to Credit Mend - Staff</title>
+            <title>Welcome to Credit Mend</title>
+            <style>
+                body {
+                    text-align: center;
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    display: inline-block;
+                    text-align: left;
+                    margin: 20px auto;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    max-width: 600px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                h1 {
+                    color: #333;
+                    text-align: center;
+                    margin: 0 0 20px 0;
+                }
+                p {
+                    color: #555;
+                    line-height: 1.6;
+                }
+                a {
+                    color: #0066cc;
+                    text-decoration: none;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Welcome to Credit Mend, ${user.first_name}!</h1>
+                <p>We're excited to have you onboard with Credit Mend. As a user, you can now monitor and improve your credit score effectively.</p>
+                
+                <p>Here are some things you can start doing:</p>
+                <ul>
+                    <li>View and analyze your credit report.</li>
+                    <li>Track any negative items affecting your credit score.</li>
+                    <li>Dispute credit report inaccuracies and track progress.</li>
+                </ul>
+                
+                <p>If you need any help or have any questions, feel free to contact us at <a href="mailto:support@creditmend.com">support@creditmend.com</a>.</p>
+                
+                <p>Welcome aboard!</p>
+                <p>The Credit Mend Team</p>
+            </div>
+        </body>
+        </html>
+    `;
+
+    const mailOptions = {
+        from: {
+            name: "Credit Mend",
+            address: 'support@creditmend.com'
+        },
+        to: user.email,
+        subject: "Credit Mend: Welcome!",
+        html: htmlContent,
+        text: 'Welcome to Credit Mend'
+    };
+
+    transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log(`Email sent to ${user.email}`.cyan.bold);
+        }
+    });
+}
+
+export const business_user_welcome_mail_messenger = (user: any) => {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: email_username,
+            pass: email_passowrd
+        }
+    });
+
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Welcome to Credit Mend - Business</title>
             <style>
                 body {
                     text-align: center;
@@ -156,19 +244,19 @@ export const staff_welcome_mail_messenger = (staff:any) => {
         </head>
         <body>
             <div class="container">
-                <h1>Welcome to Credit Mend, ${staff.first_name}!</h1>
-                <p>We're pleased to have you on the Credit Mend team. Your role is vital in helping our clients manage and improve their credit health.</p>
+                <h1>Welcome to Credit Mend, ${user.first_name}!</h1>
+                <p>We're excited to have you as a business user at Credit Mend. With your business account, you can manage multiple credit profiles efficiently.</p>
                 
-                <p>As a new staff member, here are some things you can start with:</p>
+                <p>Here are some key features you can explore:</p>
                 <ul>
-                    <li>Familiarize yourself with our tools and resources to assist clients effectively.</li>
-                    <li>Access our <a href="#">Staff Training Resources</a> for best practices and guidance.</li>
-                    <li>Contact our support team if you have any questions or need further assistance.</li>
+                    <li>Link and manage multiple profiles for your clients or team members.</li>
+                    <li>Monitor and track credit scores and reports for all profiles.</li>
+                    <li>Dispute credit inaccuracies and track the progress for each profile.</li>
                 </ul>
                 
-                <p>If you have any questions or need assistance, please reach out to our support team at <a href="mailto:support@creditmend.com">support@creditmend.com</a>.</p>
+                <p>If you need any assistance, please contact us at <a href="mailto:support@creditmend.com">support@creditmend.com</a>.</p>
                 
-                <p>Welcome to the team!</p>
+                <p>Welcome to Credit Mend Business!</p>
                 <p>The Credit Mend Team</p>
             </div>
         </body>
@@ -180,21 +268,21 @@ export const staff_welcome_mail_messenger = (staff:any) => {
             name: "Credit Mend",
             address: 'support@creditmend.com'
         },
-        to: staff.email,
-        subject: "Credit Mend: Welcome to the Team",
+        to: user.email,
+        subject: "Credit Mend: Welcome to Business Suite",
         html: htmlContent,
-        text: 'Welcome'
+        text: 'Welcome to Credit Mend Business'
     };
 
     transporter.sendMail(mailOptions, function(error, info) {
         if (error) {
             console.log(error);
         } else {
-            console.log(`Email sent to ${staff.email}`.cyan.bold);
+            console.log(`Email sent to ${user.email}`.cyan.bold);
         }
     });
-
 }
+
 
 export const notify_admin_of_new_staff = (staff:any, adminEmail:string) => {
 

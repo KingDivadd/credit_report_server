@@ -5,7 +5,7 @@ import converted_datetime from '../helpers/date_time_elements'
 import { mobile_redis_auth_store, redis_auth_store, redis_otp_store, redis_value_update } from '../helpers/redis_funtions'
 import {generate_otp, generate_referral_code} from '../helpers/generated_entities'
 import { CustomRequest } from '../helpers/interface'
-import { admin_welcome_mail_messenger, otp_messanger } from '../helpers/emails'
+import { admin_welcome_mail_messenger, business_user_welcome_mail_messenger, otp_messanger, single_user_welcome_mail_messenger } from '../helpers/emails'
 const bcrypt = require('bcrypt')
 
 export const signup = async(req: Request, res: Response, next: NextFunction)=>{
@@ -29,14 +29,27 @@ export const signup = async(req: Request, res: Response, next: NextFunction)=>{
         })
 
         if (new_user.user_role == 'admin') {
+            
             admin_welcome_mail_messenger(new_user)   
+            
             return res.status(201).json({msg: 'Admin created successfully', user: new_user})
-        }
-
-        if (new_user.user_role == 'business_user') {
+            
+        }else if (new_user.user_role == 'business_user') {
+            
             const new_auth_id:any = await redis_auth_store(new_user, 60 * 60 * 23)
             
+            business_user_welcome_mail_messenger(new_user)
+            
             res.setHeader('x-id-key', new_auth_id)
+            
+        }else if (new_user.user_role == 'single_user') {
+            
+            const new_auth_id:any = await redis_auth_store(new_user, 60 * 60 * 23)
+            
+            single_user_welcome_mail_messenger(new_user)
+            
+            res.setHeader('x-id-key', new_auth_id)
+            
         }
 
         return res.status(201).json({msg: 'User created successfully', user: new_user})
@@ -171,6 +184,7 @@ export const verify_email_otp = async (req: CustomRequest, res: Response, next: 
                     profile_ind: new_profile_ind,
                     user_id: verified_user.user_id, first_name: verified_user.first_name, 
                     last_name: verified_user.last_name, email: verified_user.email, 
+                    phone_number: verified_user.phone_number,
                     created_at: converted_datetime(), updated_at: converted_datetime()
                 }
             })

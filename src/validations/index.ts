@@ -10,6 +10,7 @@ export const signup_validation = async (req: Request, res: Response, next: NextF
             first_name: Joi.string().trim().required(),
             email: Joi.string().trim().email().required(),
             password: Joi.string().trim().required(),
+            phone_number: Joi.string().trim().required(),
             avatar: Joi.string().trim().optional(),
             user_role: Joi.string().trim().required(),
         })
@@ -125,6 +126,34 @@ export const profile_validation = async (req: Request, res: Response, next: Next
         console.log('Error creating profile ',err)
         return res.status(422).json({err: 'Error creating profile ', error: err})
         
+    }
+}
+
+
+export const user_validation = async (req: Request, res: Response, next: NextFunction)=>{
+    try {
+        const schema = Joi.object({
+
+            first_name: Joi.string().trim().required(),
+            last_name: Joi.string().trim().required(),
+            phone_number: Joi.string().trim().required(),
+            email: Joi.string().email().required(),
+            password: Joi.string().trim().required(),
+            avatar: Joi.string().trim().allow('').optional(),
+            user_role: Joi.string().trim().required(),
+
+        })
+
+        const { error: validation_error } = schema.validate(req.body)
+
+        if (validation_error) {
+            const error_message = validation_error.message.replace(/"/g, '');
+            return res.status(400).json({ err: error_message });
+        }
+        return next()
+    } catch (err:any) {
+        console.log('Error creating user ',err)
+        return res.status(422).json({err: 'Error creating user ', error: err})
     }
 }
 

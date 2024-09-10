@@ -2,13 +2,16 @@ import express from 'express'
 
 import {navigation_content} from "../controllers/general"
 
-import { signup_validation, business_validation, login_validation, reset_password_validation, profile_validation } from '../validations'
+import { signup_validation, business_validation, login_validation, reset_password_validation, profile_validation, user_validation } from '../validations'
 
 import { email_exist, verify_auth_id, verify_otp,  } from '../helpers/auth_helper'
 
 import { add_new_business, change_profile_active_status,generate_verification_otp, reset_password, signup, user_login, verify_email_otp } from '../controllers/authentication'
 
-import {all_paginated_profile, create_profile, edit_profile} from "../controllers/business_user"
+import {all_business_users, all_paginated_profile, create_profile, edit_profile} from "../controllers/business_user"
+
+import {add_users, all_paginated_user, all_users} from "../controllers/admin_users"
+import { user_managment } from '../controllers/single_user'
 
 const router = express.Router()
 
@@ -29,6 +32,14 @@ router.route('/reset-password').patch(verify_auth_id, reset_password_validation,
 
 router.route('/change-profile-status/:status/:profile_id').patch(verify_auth_id, change_profile_active_status )
 
+// Admin User
+
+router.route('/all-paginated-users/:page_number').get(verify_auth_id, all_paginated_user)
+
+router.route('/admin-user-dashboard').get(verify_auth_id, )
+
+router.route('/add-user').post(verify_auth_id, user_validation, email_exist, add_users )
+
 // General 
 
 router.route('/navigation').get(verify_auth_id, navigation_content )
@@ -38,7 +49,11 @@ router.route('/navigation').get(verify_auth_id, navigation_content )
 
 router.route('/single-user-dashboard').get(verify_auth_id, )
 
+router.route('/user-managment').get(verify_auth_id, user_managment)
+
 // Business User
+
+router.route('/all-users').get( all_business_users)
 
 router.route('/business-user-dashboard').get(verify_auth_id, )
 
@@ -46,7 +61,7 @@ router.route('/all-paginated-profile/:page_number').get(verify_auth_id, all_pagi
 
 router.route('/add-profile').post(verify_auth_id, profile_validation, email_exist, create_profile)
 
-router.route('/edit-profile/:profile_id').patch(verify_auth_id, profile_validation, email_exist, edit_profile  )
+router.route('/edit-profile/:profile_id').patch(verify_auth_id, profile_validation, edit_profile  )
 
 
 

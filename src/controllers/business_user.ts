@@ -10,34 +10,57 @@ const bcrypt = require('bcrypt')
 
 
 
-export const all_paginated_profile = async(req: CustomRequest, res: Response)=>{
+export const all_business_users = async(req: CustomRequest, res: Response)=>{
     try {
-        const user_id = req.account_holder.user.user_id
-
-        const {page_number} = req.params
-
-        const [number_of_profiles, profiles ] = await Promise.all([
-
-            prisma.profile.count({
-                where: {user_id}
-            }),
-            prisma.profile.findMany({
-                where: {user_id},
-                include: {credit_reports: true},
-                skip: (Math.abs(Number(page_number)) - 1) * 15, take: 15, orderBy: { created_at: 'desc'  } 
-            }),
-
-        ])
         
-        const number_of_profiles_pages = (number_of_profiles <= 15) ? 1 : Math.ceil(number_of_profiles / 15)
+        const user = await prisma.user.findMany({})
 
-        return res.status(200).json({ total_number_of_profiles: number_of_profiles, total_number_of_pages: number_of_profiles_pages, profiles })
-
+        return res.status(200).json({
+            msg: 'All users',
+            total_business_users: user.length,
+            business_users: user
+        })
     } catch (err:any) {
-        console.log('Error occured while fetching all users ', err);
-        return res.status(500).json({err:'Error occured while fetching all users ', error:err});
+        console.log('Error fetching all business users ', err);
+        return res.status(500).json({err:'Error fetching all business users ', error:err});
     }
 }
+
+export const all_paginated_profile = async(req: CustomRequest, res: Response) => {
+    try {
+        const user_id = req.account_holder.user.user_id;
+        const user_role = req.account_holder.user.user_role;
+
+        const { page_number } = req.params;
+        
+        // Determine if the user is an admin
+        const is_admin = user_role === 'admin';
+
+        const [number_of_profiles, profiles] = await Promise.all([
+            prisma.profile.count({
+                where: is_admin ? {} : { user_id }
+            }),
+            prisma.profile.findMany({
+                where: is_admin ? {} : { user_id },
+                include: { credit_reports: true, user: true }, 
+                skip: (Math.abs(Number(page_number)) - 1) * 15, take: 15, orderBy: { created_at: 'desc' }
+            }),
+        ]);
+
+        const number_of_profiles_pages = (number_of_profiles <= 15) ? 1 : Math.ceil(number_of_profiles / 15);
+
+        return res.status(200).json({ 
+            total_number_of_profiles: number_of_profiles, 
+            total_number_of_pages: number_of_profiles_pages, 
+            profiles 
+        });
+
+    } catch (err: any) {
+        console.log('Error occurred while fetching all users', err);
+        return res.status(500).json({ err: 'Error occurred while fetching all users', error: err });
+    }
+}
+
 
 export const create_profile = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const {report_data, ...profile_box} = req.body
@@ -98,31 +121,56 @@ export const create_profile = async (req: CustomRequest, res: Response, next: Ne
 
 export const edit_profile = async (req: CustomRequest, res: Response, next: NextFunction) => {
 
+    const { report_data, ...new_box} = req.body
+
     try {
 
         const user = req.account_holder.user
 
-        if (user.user_role !== 'business_user') { return res.status(401).json({err: 'only users registered as business users can create profile '}) }
+        const {profile_id} =  req.params
 
-        req.body.user_id = user.user_id
+        const [profile_exist, profile_email_exist, user_email_exist] = await Promise.all([
 
-        const new_profile = await prisma.profile.create({
-            data: {
+            prisma.profile.findFirst({ where: {profile_id} }),
+            prisma.profile.findFirst({where: {email: req.body.email}}),
+            prisma.user.findFirst({where: {email: req.body.email}}),
 
-                ...req.body,
-                created_at: converted_datetime(), updated_at: converted_datetime()
-            }
-        })
+        ]) 
+
+        if (!profile_exist) { return res.status(404).json({err: 'Profile not found '}) }
+
+
+        if ((profile_exist.email !== req.body.email) && (profile_email_exist || user_email_exist)) {
+            return res.status(400).json({err: 'Email already taken'})
+        }
+
+        const [update_profile, update_credit_report] = await Promise.all([
+
+            prisma.profile.update({
+                where: {profile_id},
+                data: {
+                    ...new_box,
+                    updated_at: converted_datetime()
+                }
+            }),
+            prisma.creditReport.update({
+                where: {profile_id},
+                data: {
+                    report_data: report_data,
+                    updated_at: converted_datetime()
+                }
+            })
+        ]) 
 
         return res.status(201).json({
-            msg: 'Profile created successfully',
-            profile: new_profile
+            msg: 'Profile updated successfully',
+            profile: update_profile
         })
 
 
     } catch (err) {
-        console.error('Error creating profile : ', err);
-        return res.status(500).json({ err: 'Error creating profile' });
+        console.error('Error updating profile', err);
+        return res.status(500).json({ err: 'Error updating profile'});
     }
 
 }
