@@ -2,7 +2,7 @@ import express from 'express'
 
 import {navigation_content} from "../controllers/general"
 
-import { signup_validation, business_validation, login_validation, reset_password_validation, profile_validation, user_validation } from '../validations'
+import { signup_validation, business_validation, login_validation, reset_password_validation, profile_validation, user_validation, profile_manag_validation } from '../validations'
 
 import { email_exist, verify_auth_id, verify_otp,  } from '../helpers/auth_helper'
 
@@ -11,7 +11,7 @@ import { add_new_business, change_profile_active_status,generate_verification_ot
 import {all_business_users, all_paginated_profile, create_profile, edit_profile} from "../controllers/business_user"
 
 import {add_users, all_paginated_user, all_users} from "../controllers/admin_users"
-import { user_managment } from '../controllers/single_user'
+import { edit_user_management, user_managment } from '../controllers/single_user'
 
 const router = express.Router()
 
@@ -50,6 +50,8 @@ router.route('/navigation').get(verify_auth_id, navigation_content )
 router.route('/single-user-dashboard').get(verify_auth_id, )
 
 router.route('/user-managment').get(verify_auth_id, user_managment)
+
+router.route('/edit-user-management/:user_id').patch(verify_auth_id, profile_manag_validation, edit_user_management)
 
 // Business User
 

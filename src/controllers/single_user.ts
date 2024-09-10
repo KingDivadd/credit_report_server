@@ -36,3 +36,43 @@ export const user_managment = async(req: CustomRequest, res: Response)=>{
         return res.status(500).json({err: 'Error occured while fetching user managment ', error:err})
     }
 }
+
+export const edit_user_management = async(req: CustomRequest, res: Response)=>{
+
+    const {avatar, first_name, last_name, phone_number, password, credit_score} = req.body
+
+    try {
+
+        const {user_id} = req.params
+
+        const encrypted_password = await bcrypt.hash(password, salt_round)
+
+        const [ update_user, update_profile ] = await Promise.all([
+            prisma.user.update({
+                where: {user_id},
+                data: {
+                    avatar, first_name, last_name, phone_number, 
+                    password: encrypted_password,
+                    updated_at: converted_datetime()
+                }
+            }),
+            prisma.profile.updateMany({
+                where: {user_id},
+                data: {
+                    credit_score,
+                    updated_at: converted_datetime()
+                }
+            })
+        ])
+
+
+        return res.status(200).json({
+            msg: 'Updated Profile',
+            profile: update_user
+        })
+        
+    } catch (err:any) {
+        console.log('Error occured while updating profile ', err);
+        return res.status(500).json({error:'Error occured while updating profile ', erro: err});
+    }
+}

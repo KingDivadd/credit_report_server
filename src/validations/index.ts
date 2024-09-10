@@ -157,3 +157,29 @@ export const user_validation = async (req: Request, res: Response, next: NextFun
     }
 }
 
+
+export const profile_manag_validation = async (req: Request, res: Response, next: NextFunction)=>{
+    try {
+        const schema = Joi.object({
+
+            first_name: Joi.string().trim().required(),
+            last_name: Joi.string().trim().required(),
+            phone_number: Joi.string().trim().required(),
+            password: Joi.string().trim().allow('').optional(),
+            avatar: Joi.string().trim().allow('').optional(),
+            credit_score: Joi.number().required()
+        })
+
+        const { error: validation_error } = schema.validate(req.body)
+
+        if (validation_error) {
+            const error_message = validation_error.message.replace(/"/g, '');
+            return res.status(400).json({ err: error_message });
+        }
+        return next()
+    } catch (err:any) {
+        console.log('Error creating user ',err)
+        return res.status(422).json({err: 'Error creating user ', error: err})
+    }
+}
+
